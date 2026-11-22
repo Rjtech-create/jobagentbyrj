@@ -2,6 +2,9 @@
 import json
 import subprocess
 import sys
+import tempfile
+import uuid
+from pathlib import Path
 
 import pandas as pd
 import streamlit as st
@@ -28,6 +31,14 @@ def _profile_widget_values(profile):
 
 
 st.set_page_config(page_title="Job Application Agent", page_icon="💼", layout="wide")
+
+if config.APP_ENV == "cloud":
+    if "cloud_storage_id" not in st.session_state:
+        st.session_state.cloud_storage_id = uuid.uuid4().hex
+    config.configure_runtime_storage(
+        Path(tempfile.gettempdir()) / "jobagent" / st.session_state.cloud_storage_id
+    )
+
 db.init()
 
 if "profile" not in st.session_state:
@@ -38,6 +49,8 @@ for widget_key, value in _profile_widget_values(profile).items():
     st.session_state.setdefault(widget_key, value)
 
 st.title("💼 Job Application Agent")
+if config.APP_ENV == "cloud":
+    st.info("Cloud mode keeps each visitor's profile and tracker separate in temporary storage. Data may be cleared when the app restarts.")
 c1, c2, c3 = st.columns(3)
 c1.caption(f"AI writing: {'ON' if llm.available() else 'OFF (offline mode)'}")
 c2.caption(f"Job search API: {'credentials set (checked on search)' if jobs.configured() else 'keys missing'}")

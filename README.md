@@ -18,21 +18,22 @@ No keys at all? Use "Load demo jobs" to try everything.
 If job search returns HTTP 401, the App ID/Key pair in `.env` was rejected; generate or copy a valid pair, then restart the app. A 403 usually means the app or selected country is not permitted.
 
 ## Deploy the existing app on Streamlit Community Cloud
-1. Push this `jobagent` folder to a **private** GitHub repository. The `.gitignore` excludes `.env`, the local `data/` database/resumes, `.venv/`, and Streamlit secrets; do not force-add them.
+1. Push this project folder to the GitHub repository you want to deploy. This project’s selected `jobagentbyrj` repository is public, so its source code will be visible to everyone. The `.gitignore` excludes `.env`, the local `data/` database/resumes, `.venv/`, and Streamlit secrets; do not force-add them.
 2. In [Streamlit Community Cloud](https://share.streamlit.io/), choose **Create app**, select that repository and branch, and set the app file to `app.py`.
-3. In **Advanced settings → Secrets**, add your actual settings. Keep secrets in this dashboard, never in Git:
+3. In **Advanced settings → Secrets**, paste [.streamlit/secrets.toml.example](./.streamlit/secrets.toml.example), then replace the blank API credentials with valid values. Keep actual credentials in Streamlit Cloud settings, never in Git:
    ```toml
    APP_ENV = "cloud"
-   ADZUNA_APP_ID = "your-app-id"
-   ADZUNA_APP_KEY = "your-app-key"
    ADZUNA_COUNTRY = "in"
-   GEMINI_API_KEY = "your-gemini-key"
-   MAX_APPLICATIONS_PER_DAY = "10"
+   MAX_APPLICATIONS_PER_DAY = 10
+   GEMINI_API_KEY = ""
+   ADZUNA_APP_ID = ""
+   ADZUNA_APP_KEY = ""
    ```
-   Gemini is optional. If you do not have API credentials, omit those values and use demo jobs or add jobs manually.
-4. After deployment, keep the app private in its **Sharing** settings and only invite people you trust. Streamlit Community Cloud currently allows one private app per account.
+   Gemini is optional. Adzuna credentials are required for live job search; without them, use demo jobs or add jobs manually. The existing Adzuna credentials were rejected with HTTP 401, so generate a valid pair before expecting live search to work.
 
-The hosted app uses local SQLite files, which Community Cloud may discard when it restarts; profile, tracker, and generated files are not durable backups. Download the tracker CSV you need to keep. The hosted app also cannot open a browser on your device, so use **Open job page** and **Download PDF**, then review and submit manually. Local use continues to support form prefill.
+The hosted app keeps each visitor's profile, tracker, and generated PDFs in separate temporary storage. Community Cloud may discard this data when the app restarts; download the tracker CSV and PDFs you need to keep. For durable or multi-device storage, connect a hosted database before using this for production. The hosted app cannot open a browser on your device, so use **Open job page** and **Download PDF**, then review and submit manually. Local use continues to support form prefill.
+
+Choose the app's sharing visibility deliberately in Streamlit Community Cloud; a private GitHub repository does not automatically make the deployed app private.
 
 ## How to use
 1. **Profile:** upload resume, check every field, Save.
